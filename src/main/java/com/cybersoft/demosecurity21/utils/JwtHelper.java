@@ -16,11 +16,11 @@ public class JwtHelper {
     @Value("${jwt.secrect.key}")
     private String secrectKey;
 
-    public String generateToken() {
+    public String generateToken(String data) {
 
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secrectKey));
         String token = Jwts.builder()
-                .setSubject("Hello World")
+                .setSubject(data)
                 .signWith(key)
                 .compact();
 

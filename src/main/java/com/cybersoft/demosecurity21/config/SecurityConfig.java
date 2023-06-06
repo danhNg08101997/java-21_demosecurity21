@@ -1,6 +1,8 @@
 package com.cybersoft.demosecurity21.config;
 
 
+import com.cybersoft.demosecurity21.filter.JwtFilter;
+import com.cybersoft.demosecurity21.provider.CustomAuthenProvider;
 import com.cybersoft.demosecurity21.service.CustomUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -41,14 +45,20 @@ public class SecurityConfig {
 //        return new InMemoryUserDetailsManager(admin, user);
 //    }
 
-@Autowired
-private CustomUserDetailService customUserDetailService;
+    @Autowired
+    private CustomUserDetailService customUserDetailService;
+    @Autowired
+    private CustomAuthenProvider customAuthenProvider;
+    @Autowired
+    private JwtFilter jwtFilter;
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception{
         return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(customUserDetailService)
-                .passwordEncoder(passwordEncoder())
-                .and().build();
+//                .userDetailsService(customUserDetailService)
+//                .passwordEncoder(passwordEncoder())
+                .authenticationProvider(customAuthenProvider)
+                .build();
 
     }
 
@@ -60,15 +70,18 @@ private CustomUserDetailService customUserDetailService;
     @Bean
     public SecurityFilterChain filterChain (HttpSecurity http) throws Exception {
         return http.csrf().disable() // Tắt cấu hình liên quan tới tấn công csrf
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //Khai báo không sử dụng session trong project
+                .and()
                 .authorizeHttpRequests() //Quy định lại các rule liên quan đến chứng thực cho link được gọi
-                .antMatchers("/hello/**").permitAll()
+                .antMatchers("/hello/**", "/login").permitAll()
                 .antMatchers("/admin").hasRole("ADMIN") //hasRole: phải có quyền mới vào được
                 .antMatchers("/admin/save").hasAnyRole("ADMIN", "SAVE")
                 .antMatchers("/admin/delete").hasRole("DELETE")
                 .anyRequest().authenticated() //Tất cả các link còn lại đều phải chứng thực
                 .and()
-                .httpBasic()
-                .and()
+//                .httpBasic()
+//                .and()
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }

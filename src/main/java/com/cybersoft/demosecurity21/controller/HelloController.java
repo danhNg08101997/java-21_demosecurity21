@@ -26,7 +26,7 @@ public class HelloController {
 //        SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 //        String strKey = Encoders.BASE64.encode(key.getEncoded());
 //        System.out.println(strKey);
-        String token = jwtHelper.generateToken();
+        String token = jwtHelper.generateToken("hello");
 
         return new ResponseEntity<>(token, HttpStatus.OK);
     }
