@@ -25,6 +25,7 @@ public class LoginController {
     *           Gọi AuthenticationManager
     *           thực thi phương thức authenticate() trong AuthenticationManager
     * */
+
 @Autowired
 private AuthenticationManager authenticationManager;
 @Autowired

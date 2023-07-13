@@ -55,7 +55,9 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception{
         return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
+                // Khai báo sử dụng custom user detail service
 //                .userDetailsService(customUserDetailService)
+                // Khai báo chuẩn mã hoá password mà custom user detail service đang sử dụng
 //                .passwordEncoder(passwordEncoder())
                 .authenticationProvider(customAuthenProvider)
                 .build();
@@ -67,21 +69,22 @@ public class SecurityConfig {
      * Java 8, 11 : antMatchers
      * Java 17+: requestMatchers
      */
+
+    //========== Cấu hình chuẩn Security
     @Bean
     public SecurityFilterChain filterChain (HttpSecurity http) throws Exception {
         return http.csrf().disable() // Tắt cấu hình liên quan tới tấn công csrf
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //Khai báo không sử dụng session trong project
                 .and()
                 .authorizeHttpRequests() //Quy định lại các rule liên quan đến chứng thực cho link được gọi
-                .antMatchers("/hello/**", "/login").permitAll()
-                .antMatchers("/admin").hasRole("ADMIN") //hasRole: phải có quyền mới vào được
-                .antMatchers("/admin/save").hasAnyRole("ADMIN", "SAVE")
-                .antMatchers("/admin/delete").hasRole("DELETE")
+                    .antMatchers("/hello/**", "/login").permitAll()
+                    .antMatchers("/admin").hasRole("ADMIN") //hasRole: phải có quyền mới vào được
+                    .antMatchers("/admin/save").hasAnyRole("ADMIN", "SAVE")
+                    .antMatchers("/admin/delete").hasRole("DELETE")
                 .anyRequest().authenticated() //Tất cả các link còn lại đều phải chứng thực
                 .and()
-//                .httpBasic()
-//                .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+    //========== Cấu hình chuẩn Security
 }
