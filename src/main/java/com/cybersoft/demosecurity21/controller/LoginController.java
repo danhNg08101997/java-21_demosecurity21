@@ -29,7 +29,7 @@ public class LoginController {
 @Autowired
 private AuthenticationManager authenticationManager;
 @Autowired
-    JwtHelper jwtHelper;
+    private JwtHelper jwtHelper;
     @PostMapping("")
     public ResponseEntity<?>login(
             @RequestParam String username,

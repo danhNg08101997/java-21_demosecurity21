@@ -24,10 +24,18 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        /*
+         * Nhận được token truyền trên header
+         * giải mã token, nếu thành công thì hợp lệ
+         * tạo chứng thực và cho đi vào link người dùng gọi
+         * */
+
         // Lấy giá trị của header có key là Authorization
         String header = request.getHeader("Authorization");
         if(header.startsWith("Bearer ")){
+            // Cắt bỏ chữa Bearer và lấy ra token
             String token = header.substring(7);
+            // Giải mã token
             Claims claims = jwtHelper.decodeToken(token);
             if(claims != null){
                 // Tạo chứng thực cho Security
